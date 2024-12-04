@@ -1,6 +1,4 @@
 import logging
-import math
-from collections import deque
 
 import cv2
 import imutils
@@ -52,24 +50,25 @@ class ImprovedMotionDetector(MotionDetector):
         self.contrast_values[:, 1:2] = 255
         self.contrast_values_index = 0
         self.config_subscriber = ConfigSubscriber(f"config/motion/{name}")
-        self.object_tracks = {}
-        self.object_id_counter = 0
-        self.max_track_length = 10
 
-    def _calculate_trajectory_similarity(self, positions):
-        if len(positions) < 3:
-            return True
+    #     self.object_tracks = {}
+    #     self.object_id_counter = 0
+    #     self.max_track_length = 10
 
-        angles = []
-        for i in range(1, len(positions) - 1):
-            dx1 = positions[i][0] - positions[i - 1][0]
-            dy1 = positions[i][1] - positions[i - 1][1]
-            dx2 = positions[i + 1][0] - positions[i][0]
-            dy2 = positions[i + 1][1] - positions[i][1]
-            angle = math.atan2(dy2, dx2) - math.atan2(dy1, dx1)
-            angles.append(abs(angle))
-        avg_angle = sum(angles) / len(angles)
-        return avg_angle < 0.5
+    # def _calculate_trajectory_similarity(self, positions):
+    #     if len(positions) < 3:
+    #         return True
+
+    #     angles = []
+    #     for i in range(1, len(positions) - 1):
+    #         dx1 = positions[i][0] - positions[i - 1][0]
+    #         dy1 = positions[i][1] - positions[i - 1][1]
+    #         dx2 = positions[i + 1][0] - positions[i][0]
+    #         dy2 = positions[i + 1][1] - positions[i][1]
+    #         angle = math.atan2(dy2, dx2) - math.atan2(dy1, dx1)
+    #         angles.append(abs(angle))
+    #     avg_angle = sum(angles) / len(angles)
+    #     return avg_angle < 0.5
 
     def is_calibrating(self):
         return self.calibrating
@@ -226,25 +225,25 @@ class ImprovedMotionDetector(MotionDetector):
             )
             self.motion_frame_count = 0
 
-        human_like_boxes = []
-        for i, box in enumerate(motion_boxes):
-            x1, y1, x2, y2 = box
-            w, h = x2 - x1, y2 - y1
-            aspect_ratio = w / h
+        # human_like_boxes = []
+        # for i, box in enumerate(motion_boxes):
+        #     x1, y1, x2, y2 = box
+        #     w, h = x2 - x1, y2 - y1
+        #     aspect_ratio = w / h
 
-            if 0.3 < aspect_ratio < 1.0:
-                center = ((x1 + x2) // 2, (y1 + y2) // 2)
+        #     if 0.3 < aspect_ratio < 1.0:
+        #         center = ((x1 + x2) // 2, (y1 + y2) // 2)
 
-                if i not in self.object_tracks:
-                    self.object_tracks[i] = deque(maxlen=self.max_track_length)
-                self.object_tracks[i].append(center)
+        #         if i not in self.object_tracks:
+        #             self.object_tracks[i] = deque(maxlen=self.max_track_length)
+        #         self.object_tracks[i].append(center)
 
-                trajectory_smooth = self._calculate_trajectory_similarity(
-                    self.object_tracks[i]
-                )
+        #         trajectory_smooth = self._calculate_trajectory_similarity(
+        #             self.object_tracks[i]
+        #         )
 
-                if trajectory_smooth:
-                    human_like_boxes.append(box)
+        #         if trajectory_smooth:
+        #             human_like_boxes.append(box)
 
         return motion_boxes
 
