@@ -818,7 +818,7 @@ def process_frames(
                     bgr_frame,
                     (region[0], region[1]),
                     (region[2], region[3]),
-                    (255, 100, 250),
+                    (),
                     2,
                 )
 
