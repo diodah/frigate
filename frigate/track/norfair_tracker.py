@@ -385,11 +385,11 @@ class NorfairTracker(ObjectTracker):
             if obj.last_detection.data["frame_time"] != frame_time
         ]
         # draw the estimated bounding box
-        draw_boxes(frame, self.tracker.tracked_objects, color="yellow", draw_ids=True)
+        draw_boxes(frame, self.tracker.tracked_objects, color="green", draw_ids=True)
         # draw the detections that were detected in the current frame
-        draw_boxes(frame, active_detections, color="white", draw_ids=True)
+        draw_boxes(frame, active_detections, color="blue", draw_ids=True)
         # draw the detections that are missing in the current frame
-        draw_boxes(frame, missing_detections, color="orange", draw_ids=True)
+        draw_boxes(frame, missing_detections, color="red", draw_ids=True)
 
         # draw the distance calculation for the last detection
         # estimate vs detection
