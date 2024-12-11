@@ -767,7 +767,7 @@ def process_frames(
             )
         # debug
         if False:
-            bgr_frame = cv2.cvtColor(
+            bgr_frame = (
                 frame,
                 cv2.COLOR_YUV2BGR_I420,
             )
@@ -777,7 +777,7 @@ def process_frames(
                     bgr_frame,
                     (m_box[0], m_box[1]),
                     (m_box[2], m_box[3]),
-                    (0, 255, 255),
+                    (255, 0, 255),
                     2,
                 )
 
@@ -786,7 +786,7 @@ def process_frames(
                     bgr_frame,
                     (b[0], b[1]),
                     (b[2], b[3]),
-                    (255, 255, 0),
+                    (255, 0, 255),
                     2,
                 )
 
@@ -796,7 +796,7 @@ def process_frames(
                     color = model_config.colormap[obj["label"]]
                 else:
                     thickness = 1
-                    color = (255, 255, 0)
+                    color = (255, 0, 255)
 
                 # draw the bounding boxes on the frame
                 box = obj["box"]
