@@ -188,7 +188,7 @@ class CameraState:
                     frame_copy,
                     (region[0], region[1]),
                     (region[2], region[3]),
-                    (0, 255, 0),
+                    (0, 255, 0),  # Color de las regiones, ahora mismo verde BGR
                     2,
                 )
 
@@ -209,7 +209,7 @@ class CameraState:
                     frame_copy,
                     (m_box[0], m_box[1]),
                     (m_box[2], m_box[3]),
-                    (0, 0, 255),
+                    (0, 0, 255),  # Color de las motion boxes, ahora mismo rojas BGR
                     2,
                 )
 
