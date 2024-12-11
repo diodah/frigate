@@ -49,7 +49,7 @@ class ImprovedMotionDetector(MotionDetector):
         self.contrast_values_index = 0
         self.config_subscriber = ConfigSubscriber(f"config/motion/{name}")
         self.centroid_history = []
-        self.max_history = 30
+        self.max_history = 40
 
     def is_calibrating(self):
         return self.calibrating
@@ -209,7 +209,10 @@ class ImprovedMotionDetector(MotionDetector):
         frame_centroids = []
         for c in contours:
             contour_area = cv2.contourArea(c)
-            if contour_area > self.config.contour_area:
+            if (
+                contour_area > self.config.contour_area
+                and contour_area < total_contour_area
+            ):
                 M = cv2.moments(c)
                 if M["m00"] > 0:
                     cx = int(M["m10"] / M["m00"])
@@ -222,6 +225,27 @@ class ImprovedMotionDetector(MotionDetector):
 
         if self.detect_suspicious_motion():
             logger.info(f"Suspicious motion detected in {self.name}")
+
+        if self.save_images:
+            # Copia el frame para dibujar
+            debug_frame = cv2.cvtColor(resized_frame.copy(), cv2.COLOR_GRAY2BGR)
+
+            # Dibujar los centroides y trayectorias
+            for i, frame_centroids in enumerate(self.centroid_history):
+                color = (0, 255, 0)
+                for centroid in frame_centroids:
+                    cv2.circle(debug_frame, centroid, 3, color, -1)
+
+                # Dibujar líneas entre centroides consecutivos
+                if i > 0:
+                    prev_centroids = self.centroid_history[i - 1]
+                    for prev, curr in zip(prev_centroids, frame_centroids):
+                        cv2.line(debug_frame, prev, curr, (255, 0, 255), 2)
+
+            cv2.imwrite(f"debug/trajectory_{self.frame_counter}.jpg", debug_frame)
+            # cv2.imshow("Trajectories", debug_frame)
+            # if cv2.waitKey(1) & 0xFF == ord('q'):
+            #     break
 
         return motion_boxes
 

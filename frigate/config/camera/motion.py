@@ -16,7 +16,7 @@ class MotionConfig(FrigateBaseModel):
         le=255,
     )
     min_movement_threshold: float = Field(
-        default=2.0,  # Valor predeterminado
+        default=1.0,  # Valor predeterminado
         title="Minimum movement magnitude to classify as suspicious.",
         ge=0.0,  # Mínimo permitido (puede ser 0.0)
         description="The minimum average magnitude of movement to classify as suspicious.",
