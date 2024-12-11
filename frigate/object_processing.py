@@ -84,14 +84,14 @@ class CameraState:
             for obj in tracked_objects.values():
                 if obj["frame_time"] == frame_time:
                     if obj["stationary"]:
-                        color = (220, 220, 220)
+                        color = (220, 220, 0)
                         thickness = 1
                     else:
                         thickness = 2
                         color = self.config.model.colormap[obj["label"]]
                 else:
                     thickness = 1
-                    color = (255, 0, 0)
+                    color = (255, 0, 255)
 
                 # draw thicker box around ptz autotracked object
                 if (
@@ -188,7 +188,7 @@ class CameraState:
                     frame_copy,
                     (region[0], region[1]),
                     (region[2], region[3]),
-                    (0, 255, 0),
+                    (0, 255, 255),
                     2,
                 )
 
@@ -209,7 +209,7 @@ class CameraState:
                     frame_copy,
                     (m_box[0], m_box[1]),
                     (m_box[2], m_box[3]),
-                    (0, 0, 255),
+                    (255, 0, 255),
                     2,
                 )
 
