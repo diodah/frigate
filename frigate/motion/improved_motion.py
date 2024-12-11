@@ -243,7 +243,7 @@ class ImprovedMotionDetector(MotionDetector):
             if len(directions) > 1:
                 avg_direction = np.mean(directions, axis=0)
                 magnitude = np.linalg.norm(avg_direction)
-                logger.debug(f"Avg direction: {avg_direction}, Magnitude: {magnitude}")
+                logger.info(f"Avg direction: {avg_direction}, Magnitude: {magnitude}")
                 if magnitude > self.config.min_movement_threshold:
                     return True
 
