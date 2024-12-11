@@ -49,7 +49,7 @@ class ImprovedMotionDetector(MotionDetector):
         self.contrast_values_index = 0
         self.config_subscriber = ConfigSubscriber(f"config/motion/{name}")
         self.centroid_history = []
-        self.max_history = 20
+        self.max_history = 30
 
     def is_calibrating(self):
         return self.calibrating
@@ -243,6 +243,7 @@ class ImprovedMotionDetector(MotionDetector):
             if len(directions) > 1:
                 avg_direction = np.mean(directions, axis=0)
                 magnitude = np.linalg.norm(avg_direction)
+                logger.debug(f"Avg direction: {avg_direction}, Magnitude: {magnitude}")
                 if magnitude > self.config.min_movement_threshold:
                     return True
 
