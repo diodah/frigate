@@ -15,6 +15,12 @@ class MotionConfig(FrigateBaseModel):
         ge=1,
         le=255,
     )
+    min_movement_threshold: float = Field(
+        default=2.0,  # Valor predeterminado
+        title="Minimum movement magnitude to classify as suspicious.",
+        ge=0.0,  # Mínimo permitido (puede ser 0.0)
+        description="The minimum average magnitude of movement to classify as suspicious.",
+    )
     lightning_threshold: float = Field(
         default=0.8, title="Lightning detection threshold (0.3-1.0).", ge=0.3, le=1.0
     )

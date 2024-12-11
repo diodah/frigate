@@ -48,6 +48,8 @@ class ImprovedMotionDetector(MotionDetector):
         self.contrast_values[:, 1:2] = 255
         self.contrast_values_index = 0
         self.config_subscriber = ConfigSubscriber(f"config/motion/{name}")
+        self.centroid_history = []
+        self.max_history = 20
 
     def is_calibrating(self):
         return self.calibrating
@@ -204,7 +206,47 @@ class ImprovedMotionDetector(MotionDetector):
             )
             self.motion_frame_count = 0
 
+        frame_centroids = []
+        for c in contours:
+            contour_area = cv2.contourArea(c)
+            if contour_area > self.config.contour_area:
+                M = cv2.moments(c)
+                if M["m00"] > 0:
+                    cx = int(M["m10"] / M["m00"])
+                    cy = int(M["m01"] / M["m00"])
+                    frame_centroids.append((cx, cy))
+
+        self.centroid_history.append(frame_centroids)
+        if len(self.centroid_history) > self.max_history:
+            self.centroid_history.pop(0)
+
+        if self.detect_suspicious_motion():
+            logger.info(f"Suspicious motion detected in {self.name}")
+
         return motion_boxes
+
+    def detect_suspicious_motion(self):
+        if len(self.centroid_history) < 2:
+            return False
+
+        directions = []
+        for i in range(1, len(self.centroid_history)):
+            prev_frame = self.centroid_history[i - 1]
+            curr_frame = self.centroid_history[i]
+            if prev_frame and curr_frame:
+                for p, c in zip(prev_frame, curr_frame):
+                    dx = c[0] - p[0]
+                    dy = c[1] - p[1]
+                    direction = (dx, dy)
+                    directions.append(direction)
+
+            if len(directions) > 1:
+                avg_direction = np.mean(directions, axis=0)
+                magnitude = np.linalg.norm(avg_direction)
+                if magnitude > self.config.min_movement_threshold:
+                    return True
+
+            return False
 
     def stop(self) -> None:
         """stop the motion detector."""
