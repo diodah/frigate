@@ -166,7 +166,7 @@ class ImprovedMotionDetector(MotionDetector):
                     thresh_dilated,
                     (int(b[0] / self.resize_factor), int(b[1] / self.resize_factor)),
                     (int(b[2] / self.resize_factor), int(b[3] / self.resize_factor)),
-                    (0, 0, 255),
+                    (255, 0, 255),
                     2,
                 )
             frames = [
