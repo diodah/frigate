@@ -705,7 +705,7 @@ class TrackedObjectProcessor(threading.Thread):
                 self.config,
                 self.frame_manager,
                 self.ptz_autotracker_thread,
-                motion_detector=self.motion_detector.get(camera, None),
+                motion_detector=motion_detector,
             )
             camera_state.on("start", start)
             camera_state.on("autotrack", autotrack)
