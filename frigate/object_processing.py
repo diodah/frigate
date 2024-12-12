@@ -209,8 +209,8 @@ class CameraState:
                     frame_copy,
                     (m_box[0], m_box[1]),
                     (m_box[2], m_box[3]),
-                    (0, 0, 255),  # Color de las motion boxes, ahora mismo rojas BGR
-                    2,
+                    (255, 0, 255),  # Color de las motion boxes, ahora mismo rojas BGR
+                    1,
                 )
 
         if draw_options.get("timestamp"):
