@@ -217,14 +217,16 @@ class CameraState:
                     2,
                 )
 
-            if hasattr(self, "centroid_history") and self.centroid_history:
-                for i, frame_centroids in enumerate(self.centroid_history):
+            if hasattr(self, "motion_detector") and self.motion_detector is not None:
+                centroids = self.motion_detector.centroid_history
+                logger.info(f"Centroid history: {centroids}")
+                for i, frame_centroids in enumerate(centroids):
                     color = (0, 255, 0)
                     for centroid in frame_centroids:
                         cv2.circle(frame_copy, centroid, 3, color, -1)
 
                     if i > 0:
-                        prev_centroids = self.centroid_history[i - 1]
+                        prev_centroids = centroids[i - 1]
                         for prev, curr in zip(prev_centroids, frame_centroids):
                             cv2.line(frame_copy, prev, curr, (255, 0, 255), 2)
 
