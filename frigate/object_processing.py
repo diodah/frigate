@@ -230,7 +230,13 @@ class CameraState:
 
         if draw_options.get("trajectories") and self.motion_detector:
             for i, frame_centroids in enumerate(self.motion_detector.centroid_history):
-                color = (0, 255, 0)
+                # Cambiar color para movimientos sospechosos
+                if self.motion_detector.detect_suspicious_motion():
+                    color = (0, 0, 255)  # Rojo para movimientos sospechosos
+                else:
+                    color = (0, 255, 0)  # Verde para trayectorias normales
+
+                # Dibujar los puntos del frame actual
                 for centroid in frame_centroids:
                     cv2.circle(frame_copy, centroid, 3, color, -1)
                 if i > 0:
