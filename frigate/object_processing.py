@@ -24,6 +24,7 @@ from frigate.config import (
 )
 from frigate.const import CLIPS_DIR, UPDATE_CAMERA_ACTIVITY
 from frigate.events.types import EventStateEnum, EventTypeEnum
+from frigate.motion.improved_motion import ImprovedMotionDetector
 from frigate.ptz.autotrack import PtzAutoTrackerThread
 from frigate.track.tracked_object import TrackedObject
 from frigate.util.image import (
@@ -45,6 +46,7 @@ class CameraState:
         config: FrigateConfig,
         frame_manager: SharedMemoryFrameManager,
         ptz_autotracker_thread: PtzAutoTrackerThread,
+        motion_detector=None,
     ):
         self.name = name
         self.config = config
@@ -64,6 +66,7 @@ class CameraState:
         self.previous_frame_id = None
         self.callbacks = defaultdict(list)
         self.ptz_autotracker_thread = ptz_autotracker_thread
+        self.motion_detector = motion_detector
 
     def get_current_frame(self, draw_options={}):
         with self.current_frame_lock:
@@ -665,8 +668,27 @@ class TrackedObjectProcessor(threading.Thread):
                 self.requestor.send_data(UPDATE_CAMERA_ACTIVITY, self.camera_activity)
 
         for camera in self.config.cameras.keys():
+            camera_config = self.config.cameras[camera]
+            frame_shape = (
+                camera_config.detect.height,
+                camera_config.detect.width,
+            )
+
+            motion_detector = ImprovedMotionDetector(
+                frame_shape=frame_shape,
+                config=camera_config.motion,
+                fps=camera_config.detect.fps
+                if camera_config.detect.fps is not None
+                else 5,
+                name=camera,
+            )
+
             camera_state = CameraState(
-                camera, self.config, self.frame_manager, self.ptz_autotracker_thread
+                camera,
+                self.config,
+                self.frame_manager,
+                self.ptz_autotracker_thread,
+                motion_detector=motion_detector,
             )
             camera_state.on("start", start)
             camera_state.on("autotrack", autotrack)
