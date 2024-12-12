@@ -679,7 +679,9 @@ class TrackedObjectProcessor(threading.Thread):
             motion_detector = ImprovedMotionDetector(
                 frame_shape=frame_shape,
                 config=camera_config.motion,
-                fps=camera_config.fps,
+                fps=camera_config.detect.fps
+                if camera_config.detect.fps is not None
+                else 5,
                 name=camera,
             )
 
