@@ -217,31 +217,31 @@ class CameraState:
                     2,
                 )
 
-            if hasattr(self.motion_detector, "centroid_history"):
-                centroids = self.motion_detector.centroid_history
-                logger.info(
-                    f"Centroid history for {self.name}: {self.motion_detector.centroid_history}"
-                )
-                for i, frame_centroids in enumerate(centroids):
-                    color = (0, 255, 0)
-                    if centroids:
-                        for centroid in frame_centroids:
-                            cv2.circle(frame_copy, centroid, 3, color, -1)
-                    else:
-                        cv2.putText(
-                            frame_copy,
-                            "No motion detected",
-                            (50, 50),
-                            cv2.FONT_HERSHEY_SIMPLEX,
-                            1,
-                            (0, 0, 255),
-                            2,
-                        )
+            # if hasattr(self.motion_detector, "centroid_history"):
+            #     centroids = self.motion_detector.centroid_history
+            #     logger.info(
+            #         f"Centroid history for {self.name}: {self.motion_detector.centroid_history}"
+            #     )
+            #     for i, frame_centroids in enumerate(centroids):
+            #         color = (0, 255, 0)
+            #         if centroids:
+            #             for centroid in frame_centroids:
+            #                 cv2.circle(frame_copy, centroid, 3, color, -1)
+            #         else:
+            #             cv2.putText(
+            #                 frame_copy,
+            #                 "No motion detected",
+            #                 (50, 50),
+            #                 cv2.FONT_HERSHEY_SIMPLEX,
+            #                 1,
+            #                 (0, 0, 255),
+            #                 2,
+            #             )
 
-                    if i > 0:
-                        prev_centroids = centroids[i - 1]
-                        for prev, curr in zip(prev_centroids, frame_centroids):
-                            cv2.line(frame_copy, prev, curr, (255, 0, 255), 2)
+            #         if i > 0:
+            #             prev_centroids = centroids[i - 1]
+            #             for prev, curr in zip(prev_centroids, frame_centroids):
+            #                 cv2.line(frame_copy, prev, curr, (255, 0, 255), 2)
 
         if draw_options.get("timestamp"):
             color = self.camera_config.timestamp_style.color
