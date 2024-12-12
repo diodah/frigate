@@ -24,7 +24,6 @@ from frigate.config import (
 )
 from frigate.const import CLIPS_DIR, UPDATE_CAMERA_ACTIVITY
 from frigate.events.types import EventStateEnum, EventTypeEnum
-from frigate.motion.improved_motion import ImprovedMotionDetector
 from frigate.ptz.autotrack import PtzAutoTrackerThread
 from frigate.track.tracked_object import TrackedObject
 from frigate.util.image import (
@@ -46,7 +45,6 @@ class CameraState:
         config: FrigateConfig,
         frame_manager: SharedMemoryFrameManager,
         ptz_autotracker_thread: PtzAutoTrackerThread,
-        motion_detector=None,
     ):
         self.name = name
         self.config = config
@@ -66,8 +64,6 @@ class CameraState:
         self.previous_frame_id = None
         self.callbacks = defaultdict(list)
         self.ptz_autotracker_thread = ptz_autotracker_thread
-        self.motion_detector = motion_detector
-        self.centroid_history = []  # Historial de centroides
 
     def get_current_frame(self, draw_options={}):
         with self.current_frame_lock:
@@ -217,32 +213,6 @@ class CameraState:
                     2,
                 )
 
-            # if hasattr(self.motion_detector, "centroid_history"):
-            #     centroids = self.motion_detector.centroid_history
-            #     logger.info(
-            #         f"Centroid history for {self.name}: {self.motion_detector.centroid_history}"
-            #     )
-            #     for i, frame_centroids in enumerate(centroids):
-            #         color = (0, 255, 0)
-            #         if centroids:
-            #             for centroid in frame_centroids:
-            #                 cv2.circle(frame_copy, centroid, 3, color, -1)
-            #         else:
-            #             cv2.putText(
-            #                 frame_copy,
-            #                 "No motion detected",
-            #                 (50, 50),
-            #                 cv2.FONT_HERSHEY_SIMPLEX,
-            #                 1,
-            #                 (0, 0, 255),
-            #                 2,
-            #             )
-
-            #         if i > 0:
-            #             prev_centroids = centroids[i - 1]
-            #             for prev, curr in zip(prev_centroids, frame_centroids):
-            #                 cv2.line(frame_copy, prev, curr, (255, 0, 255), 2)
-
         if draw_options.get("timestamp"):
             color = self.camera_config.timestamp_style.color
             draw_timestamp(
@@ -270,7 +240,6 @@ class CameraState:
         current_detections: dict[str, dict[str, any]],
         motion_boxes: list[tuple[int, int, int, int]],
         regions: list[tuple[int, int, int, int]],
-        centroids: list[list[tuple[int, int]]] = None,
     ):
         current_frame = self.frame_manager.get(
             frame_name, self.camera_config.frame_shape_yuv
@@ -282,12 +251,6 @@ class CameraState:
         removed_ids = previous_ids.difference(current_ids)
         new_ids = current_ids.difference(previous_ids)
         updated_ids = current_ids.intersection(previous_ids)
-
-        if centroids is not None:
-            self.centroid_history = centroids
-
-        if self.motion_detector:
-            self.centroid_history = self.motion_detector.centroid_history
 
         for id in new_ids:
             new_obj = tracked_objects[id] = TrackedObject(
@@ -688,24 +651,8 @@ class TrackedObjectProcessor(threading.Thread):
                 self.requestor.send_data(UPDATE_CAMERA_ACTIVITY, self.camera_activity)
 
         for camera in self.config.cameras.keys():
-            camera_config = self.config.cameras[camera]
-            frame_shape = (camera_config.detect.height, camera_config.detect.width)
-
-            motion_detector = ImprovedMotionDetector(
-                frame_shape=frame_shape,
-                config=camera_config.motion,
-                fps=camera_config.detect.fps
-                if camera_config.detect.fps is not None
-                else 5,
-                name=camera,
-            )
-
             camera_state = CameraState(
-                camera,
-                self.config,
-                self.frame_manager,
-                self.ptz_autotracker_thread,
-                motion_detector=motion_detector,
+                camera, self.config, self.frame_manager, self.ptz_autotracker_thread
             )
             camera_state.on("start", start)
             camera_state.on("autotrack", autotrack)
@@ -869,20 +816,10 @@ class TrackedObjectProcessor(threading.Thread):
             except queue.Empty:
                 continue
 
-            # camera_state = self.camera_states[camera]
-            camera_state = CameraState(
-                camera,
-                self.config,
-                self.frame_manager,
-                self.ptz_autotracker_thread,
-            )
+            camera_state = self.camera_states[camera]
 
             camera_state.update(
-                frame_name,
-                frame_time,
-                current_tracked_objects,
-                motion_boxes,
-                regions,
+                frame_name, frame_time, current_tracked_objects, motion_boxes, regions
             )
 
             self.update_mqtt_motion(camera, frame_time, motion_boxes)
@@ -891,7 +828,7 @@ class TrackedObjectProcessor(threading.Thread):
                 o.to_dict() for o in camera_state.tracked_objects.values()
             ]
 
-            # publish info on this framex
+            # publish info on this frame
             self.detection_publisher.publish(
                 (
                     camera,
