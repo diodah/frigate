@@ -242,13 +242,6 @@ class ImprovedMotionDetector(MotionDetector):
                     for prev, curr in zip(prev_centroids, frame_centroids):
                         cv2.line(debug_frame, prev, curr, (255, 0, 255), 2)
 
-            cv2.imwrite(
-                f"/media/frigate/trajectory_{self.frame_counter}.jpg", debug_frame
-            )
-            # cv2.imshow("Trajectories", debug_frame)
-            # if cv2.waitKey(1) & 0xFF == ord('q'):
-            #     break
-
         return motion_boxes
 
     def detect_suspicious_motion(self):
