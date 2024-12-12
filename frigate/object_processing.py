@@ -674,7 +674,7 @@ class TrackedObjectProcessor(threading.Thread):
 
         for camera in self.config.cameras.keys():
             camera_config = self.config.cameras[camera]
-            frame_shape = (camera_config.frame_height, camera_config.frame_width)
+            frame_shape = (camera_config.detect.height, camera_config.detect.width)
 
             motion_detector = ImprovedMotionDetector(
                 frame_shape=frame_shape,
