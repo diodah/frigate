@@ -151,6 +151,16 @@ function DebugSettings({ handleSetOption, options }: DebugSettingsProps) {
         />
         <Label htmlFor="regions">Regions</Label>
       </div>
+      <div className="flex items-center space-x-2">
+        <Switch
+          id="trajectories"
+          checked={options["trajectories"]}
+          onCheckedChange={(isChecked) => {
+            handleSetOption("trajectories", isChecked);
+          }}
+        />
+        <Label htmlFor="trajectories">Trajectories</Label>
+      </div>
     </div>
   );
 }

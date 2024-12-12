@@ -225,6 +225,16 @@ class CameraState:
                 position=self.camera_config.timestamp_style.position,
             )
 
+        if draw_options.get("trajectories") and self.motion_detector:
+            for i, frame_centroids in enumerate(self.motion_detector.centroid_history):
+                color = (0, 255, 0)
+                for centroid in frame_centroids:
+                    cv2.circle(frame_copy, centroid, 3, color, -1)
+                if i > 0:
+                    prev_centroids = self.motion_detector.centroid_history[i - 1]
+                    for prev, curr in zip(prev_centroids, frame_centroids):
+                        cv2.line(frame_copy, prev, curr, (255, 0, 255), 2)
+
         return frame_copy
 
     def finished(self, obj_id):
@@ -465,6 +475,10 @@ class CameraState:
         ]
         for t in thumb_frames_to_delete:
             del self.frame_cache[t]
+
+        if self.motion_detector:
+            if self.motion_detector.detect_suspicious_motion():
+                logger.info(f"[{self.name}] Suspicious motion detected at {frame_time}")
 
         with self.current_frame_lock:
             self.tracked_objects = tracked_objects

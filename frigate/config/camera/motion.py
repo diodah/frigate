@@ -15,6 +15,14 @@ class MotionConfig(FrigateBaseModel):
         ge=1,
         le=255,
     )
+    min_suspicious_duration: float = Field(
+        default=1.0,
+        title="Minimum duration for suspicious movement (seconds)",
+    )
+    max_trajectory_variation: float = Field(
+        default=0.5,
+        title="Maximum variation allowed in trajectory stability",
+    )
     min_movement_threshold: float = Field(
         default=0.5,  # Valor predeterminado
         title="Minimum movement magnitude to classify as suspicious.",

@@ -256,14 +256,17 @@ class ImprovedMotionDetector(MotionDetector):
                 for p, c in zip(prev_frame, curr_frame):
                     dx = c[0] - p[0]
                     dy = c[1] - p[1]
-                    direction = (dx, dy)
+                    direction = np.array([dx, dy])
                     directions.append(direction)
 
-            if len(directions) > 1:
+            if directions:
                 avg_direction = np.mean(directions, axis=0)
                 magnitude = np.linalg.norm(avg_direction)
-                logger.info(f"Avg direction: {avg_direction}, Magnitude: {magnitude}")
-                if magnitude > self.config.min_movement_threshold:
+                stability = np.std([np.linalg.norm(d) for d in directions])
+                logger.info(
+                    f"[{self.name}] Avg direction: {avg_direction}, Magnitude: {magnitude}, Stability: {stability}"
+                )
+                if magnitude > self.config.min_movement_threshold and stability < 0.5:
                     return True
 
             return False
