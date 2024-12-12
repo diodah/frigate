@@ -217,13 +217,26 @@ class CameraState:
                     2,
                 )
 
-            if hasattr(self, "motion_detector") and self.motion_detector is not None:
+            if hasattr(self.motion_detector, "centroid_history"):
                 centroids = self.motion_detector.centroid_history
-                logger.info(f"Centroid history: {centroids}")
+                logger.info(
+                    f"Centroid history for {self.name}: {self.motion_detector.centroid_history}"
+                )
                 for i, frame_centroids in enumerate(centroids):
                     color = (0, 255, 0)
-                    for centroid in frame_centroids:
-                        cv2.circle(frame_copy, centroid, 3, color, -1)
+                    if centroids:
+                        for centroid in frame_centroids:
+                            cv2.circle(frame_copy, centroid, 3, color, -1)
+                    else:
+                        cv2.putText(
+                            frame_copy,
+                            "No motion detected",
+                            (50, 50),
+                            cv2.FONT_HERSHEY_SIMPLEX,
+                            1,
+                            (0, 0, 255),
+                            2,
+                        )
 
                     if i > 0:
                         prev_centroids = centroids[i - 1]
@@ -692,7 +705,7 @@ class TrackedObjectProcessor(threading.Thread):
                 self.config,
                 self.frame_manager,
                 self.ptz_autotracker_thread,
-                motion_detector=motion_detector,
+                motion_detector=self.motion_detector.get(camera, None),
             )
             camera_state.on("start", start)
             camera_state.on("autotrack", autotrack)
