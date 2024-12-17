@@ -49,6 +49,8 @@ class ImprovedMotionDetector(MotionDetector):
         self.contrast_values_index = 0
         self.config_subscriber = ConfigSubscriber(f"config/motion/{name}")
         self.centroid_history = []
+        self.magnitude_threshold = config.magnitude_threshold
+        self.stability_threshold = config.stability_threshold
         self.max_history = 40
 
     def is_calibrating(self):
@@ -267,7 +269,10 @@ class ImprovedMotionDetector(MotionDetector):
                     logger.info(
                         f"[{self.name}] Avg direction: {avg_direction}, Magnitude: {magnitude}, Stability: {stability}"
                     )
-                    if magnitude > 0.0 and stability > 0.0:
+                    if (
+                        magnitude > self.magnitude_threshold
+                        and stability > self.stability_threshold
+                    ):
                         logger.info(f"Suspicious motion detected in {self.name}")
 
             return False
