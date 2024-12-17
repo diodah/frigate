@@ -263,11 +263,15 @@ class ImprovedMotionDetector(MotionDetector):
                 avg_direction = np.mean(directions, axis=0)
                 magnitude = np.linalg.norm(avg_direction)
                 stability = np.std([np.linalg.norm(d) for d in directions])
-                logger.info(
-                    f"[{self.name}] Avg direction: {avg_direction}, Magnitude: {magnitude}, Stability: {stability}"
-                )
-                if magnitude > self.config.min_movement_threshold and stability < 0.5:
-                    return True
+                if magnitude > 0.0 or stability > 0.0:
+                    logger.info(
+                        f"[{self.name}] Avg direction: {avg_direction}, Magnitude: {magnitude}, Stability: {stability}"
+                    )
+                    if (
+                        magnitude > self.threshold
+                        and stability > self.stability_threshold
+                    ):
+                        logger.info(f"Suspicious motion detected in {self.name}")
 
             return False
 
