@@ -51,7 +51,7 @@ class ImprovedMotionDetector(MotionDetector):
         self.centroid_history = []
         self.magnitude_threshold = config.magnitude_threshold
         self.stability_threshold = config.stability_threshold
-        self.max_history = 40
+        self.max_history = 200
 
     def is_calibrating(self):
         return self.calibrating
@@ -232,21 +232,26 @@ class ImprovedMotionDetector(MotionDetector):
         if self.detect_suspicious_motion():
             logger.info(f"Suspicious motion detected in {self.name}")
 
-        if self.save_images:
-            # Copia el frame para dibujar
+        if self.save_images:  # Solo si se guarda la imagen o si debug lo requiere
+            # Copia el frame original en color para debug
             debug_frame = cv2.cvtColor(resized_frame.copy(), cv2.COLOR_GRAY2BGR)
 
-            # Dibujar los centroides y trayectorias
-            for i, frame_centroids in enumerate(self.centroid_history):
-                color = (0, 255, 0)
-                for centroid in frame_centroids:
-                    cv2.circle(debug_frame, centroid, 3, color, -1)
+            # Recorre el historial de centroides
+            for i in range(
+                1, len(self.centroid_history)
+            ):  # Empieza desde el segundo frame
+                prev_centroids = self.centroid_history[i - 1]  # Centroides anteriores
+                curr_centroids = self.centroid_history[i]  # Centroides actuales
 
-                # Dibujar líneas entre centroides consecutivos
-                if i > 0:
-                    prev_centroids = self.centroid_history[i - 1]
-                    for prev, curr in zip(prev_centroids, frame_centroids):
+                # Verificar si hay centroides tanto en el frame actual como el anterior
+                if prev_centroids and curr_centroids:
+                    for prev, curr in zip(prev_centroids, curr_centroids):
+                        # Dibujar línea entre centroides consecutivos
                         cv2.line(debug_frame, prev, curr, (255, 0, 255), 2)
+
+                # Dibujar los centroides actuales como puntos
+                for centroid in curr_centroids:
+                    cv2.circle(debug_frame, centroid, 3, (0, 255, 0), -1)
 
         return motion_boxes
 
