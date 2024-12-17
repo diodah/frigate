@@ -1,4 +1,5 @@
 import logging
+import math
 
 import cv2
 import imutils
@@ -52,12 +53,52 @@ class ImprovedMotionDetector(MotionDetector):
         self.magnitude_threshold = config.magnitude_threshold
         self.stability_threshold = config.stability_threshold
         self.max_history = 200
+        self.motion_history = []
 
     def is_calibrating(self):
         return self.calibrating
 
+    def calculate_velocity_and_direction(self, prev_box, current_box):
+        """Calcula velocidad y dirección entre dos cajas."""
+        x1, y1, w1, h1 = prev_box
+        x2, y2, w2, h2 = current_box
+
+        # Calculo centro de cajas
+        center_prev = ((x1 + w1 // 2), (y1 + h1 // 2))
+        center_curr = ((x2 + w2 // 2), (y2 + h2 // 2))
+
+        # Distancia (velocidad)
+        velocity = math.sqrt(
+            (center_curr[0] - center_prev[0]) ** 2
+            + (center_curr[1] - center_prev[1]) ** 2
+        )
+
+        # Direccion (angulo)
+        direction = math.degrees(
+            math.atan2(center_curr[1] - center_prev[1], center_curr[0] - center_prev[0])
+        )
+
+        return velocity, direction
+
     def detect(self, frame):
         motion_boxes = []
+
+        self.motion_history.append(motion_boxes)
+
+        if len(self.motion_history) > 10:
+            self.motion_history.pop(0)
+
+        if len(self.motion_history) > 1:
+            prev_frame_boxes = self.motion_history[-2]
+            current_frame_boxes = motion_boxes
+
+            for prev_box, current_box in zip(prev_frame_boxes, current_frame_boxes):
+                velocity, direction = self.calculate_velocity_and_direction(
+                    prev_box, current_box
+                )
+                logger.info(
+                    f"Velocity: {velocity:.2f} pixels/frame, Direction: {direction:.2f}"
+                )
 
         # check for updated motion config
         _, updated_motion_config = self.config_subscriber.check_for_update()
