@@ -22,9 +22,18 @@ export default function DebugCameraImage({
   cameraConfig,
 }: DebugCameraImageProps) {
   const [showSettings, setShowSettings] = useState(false);
+  const defaultOptions: Options = {
+    bbox: false,
+    timestamp: false,
+    zones: false,
+    mask: false,
+    motion: false,
+    regions: false,
+    trajectories: false, // Agregar la opción por defecto
+  };
   const [options, setOptions] = usePersistence<Options>(
     `${cameraConfig?.name}-feed`,
-    emptyObject,
+    defaultOptions,
   );
   const handleSetOption = useCallback(
     (id: string, value: boolean) => {
