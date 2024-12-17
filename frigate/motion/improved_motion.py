@@ -1,5 +1,4 @@
 import logging
-import math
 
 import cv2
 import imutils
@@ -53,32 +52,9 @@ class ImprovedMotionDetector(MotionDetector):
         self.magnitude_threshold = config.magnitude_threshold
         self.stability_threshold = config.stability_threshold
         self.max_history = 200
-        self.motion_history = []
 
     def is_calibrating(self):
         return self.calibrating
-
-    def calculate_velocity_and_direction(self, prev_box, current_box):
-        """Calcula velocidad y dirección entre dos cajas."""
-        x1, y1, w1, h1 = prev_box
-        x2, y2, w2, h2 = current_box
-
-        # Calculo centro de cajas
-        center_prev = ((x1 + w1 // 2), (y1 + h1 // 2))
-        center_curr = ((x2 + w2 // 2), (y2 + h2 // 2))
-
-        # Distancia (velocidad)
-        velocity = math.sqrt(
-            (center_curr[0] - center_prev[0]) ** 2
-            + (center_curr[1] - center_prev[1]) ** 2
-        )
-
-        # Direccion (angulo)
-        direction = math.degrees(
-            math.atan2(center_curr[1] - center_prev[1], center_curr[0] - center_prev[0])
-        )
-
-        return velocity, direction
 
     def detect(self, frame):
         motion_boxes = []
