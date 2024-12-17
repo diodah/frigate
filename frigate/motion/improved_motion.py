@@ -59,23 +59,6 @@ class ImprovedMotionDetector(MotionDetector):
     def detect(self, frame):
         motion_boxes = []
 
-        self.motion_history.append(motion_boxes)
-
-        if len(self.motion_history) > 10:
-            self.motion_history.pop(0)
-
-        if len(self.motion_history) > 1:
-            prev_frame_boxes = self.motion_history[-2]
-            current_frame_boxes = motion_boxes
-
-            for prev_box, current_box in zip(prev_frame_boxes, current_frame_boxes):
-                velocity, direction = self.calculate_velocity_and_direction(
-                    prev_box, current_box
-                )
-                logger.info(
-                    f"Velocity: {velocity:.2f} pixels/frame, Direction: {direction:.2f}"
-                )
-
         # check for updated motion config
         _, updated_motion_config = self.config_subscriber.check_for_update()
 
