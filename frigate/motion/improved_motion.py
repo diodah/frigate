@@ -222,6 +222,10 @@ class ImprovedMotionDetector(MotionDetector):
                     frame_centroids.append((cx, cy))
 
         self.centroid_history.append(frame_centroids)
+        if len(self.centroid_history) > 0:
+            logger.info(f"Centroid history: {self.centroid_history}")
+        else:
+            logger.info("No centroids found.")
         if len(self.centroid_history) > self.max_history:
             self.centroid_history.pop(0)
 
