@@ -267,10 +267,7 @@ class ImprovedMotionDetector(MotionDetector):
                     logger.info(
                         f"[{self.name}] Avg direction: {avg_direction}, Magnitude: {magnitude}, Stability: {stability}"
                     )
-                    if (
-                        magnitude > self.threshold
-                        and stability > self.stability_threshold
-                    ):
+                    if magnitude > 0.0 and stability > 0.0:
                         logger.info(f"Suspicious motion detected in {self.name}")
 
             return False
