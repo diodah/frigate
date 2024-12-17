@@ -134,8 +134,7 @@ export default function ObjectSettingsView({
 
   const [options, setOptions, optionsLoaded] = usePersistence<Options>(
     `${selectedCamera}-feed`,
-    // emptyObject,
-    { trajectories: false },
+    emptyObject,
   );
 
   const handleSetOption = useCallback(
