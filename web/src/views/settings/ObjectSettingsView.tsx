@@ -115,6 +115,21 @@ export default function ObjectSettingsView({
         </>
       ),
     },
+    {
+      param: "trajectories",
+      title: "Trajectories",
+      description: "Show trajectories of detected motion over time",
+      info: (
+        <>
+          <p className="mb-2">
+            <strong>Motion Trajectories</strong>
+          </p>
+          <p>
+            Display lines and points showing the movement paths of detected motion.
+          </p>
+        </>
+      )
+    },
   ];
 
   const [options, setOptions, optionsLoaded] = usePersistence<Options>(
