@@ -275,9 +275,9 @@ class ImprovedMotionDetector(MotionDetector):
                 magnitude = np.linalg.norm(avg_direction)
                 stability = np.std([np.linalg.norm(d) for d in directions])
                 if magnitude > 0.0 or stability > 0.0:
-                    logger.info(
-                        f"[{self.name}] Avg direction: {avg_direction}, Magnitude: {magnitude}, Stability: {stability}"
-                    )
+                    # logger.info(
+                    #     f"[{self.name}] Avg direction: {avg_direction}, Magnitude: {magnitude}, Stability: {stability}"
+                    # )
                     if (
                         magnitude > self.magnitude_threshold
                         and stability > self.stability_threshold
